@@ -1,0 +1,77 @@
+{
+  "Dataset": "",
+  "DownSample": -1,
+  "Normalization": "MeanVar",
+  "Dataset:CIFAR100S:Params": {"Subset": 7},
+  "Dataset:News,DBpedia:Params": {"EmbedDimension": 100},
+  
+  "Model": "",
+  "Model:Vit,TcT:Params": {"AvgTokens": true},
+  "BatchNorm": true,
+
+  "PreTrained": false,
+  "PreTrained:Params": {"BackboneLRMultiplier": -1},
+  
+  "UseCustomReLU": false,
+  "UseCustomReLU:Params": {"Kn": 0.236, "Kp": 1},
+  
+  "UseCELoss": true,
+  "SeperateLinear": false,
+  "StoreFeatures": false,
+
+  "VanillaKD": false,
+  "VanillaKD:Params": {
+    "Temperature": 4,
+    "LGLossWeight": 16,
+    "NormalizeLogits": false
+  },
+
+  "FeatureKD": false,
+  "FeatureKD:Params": {
+    "UseCosineLoss": false,
+    "UseHuberLoss": false,
+    "LSLossWeight": 1,
+    "TeacherLayers": [],
+    "StudentLayers": [],
+    "TeacherPowers": [],
+
+    "ProjectionMethod": "",
+    "ProjectionMethod:PCA:Params": {"UseGlobalCenter": true, "LandmarkMethod": "", "LandmarkPostScaleFactor": 1},
+    "ProjectionMethod:LearnedProjector:Params": {"ProjectorArchitecture": "", "PoolMode": true, "LearnProjectors": true},
+    "ProjectionMethod:RelationFunction:Params": {"RelationFunction": ""},
+
+    "LayerMappingMethod": "",
+    "LayerMappingMethod:PreDefined:Params": {"LayerMap": [[]], "LayerMapWeights": [[]]},
+    "LayerMappingMethod:LearnedAttn:Params": {"StudentPartitions": [], "TeacherPartitions": [], "AttnArchitecture": [], "AttnInput": ""},
+
+    "UseTeacherClassifier": false,
+    "UseTeacherClassifier:Params": {"LearnTeacherClassifier": false}
+  },
+
+  "VanillaKD,FeatureKD:Params": {"Teacher": "", "AugmentTeacher": true},
+
+  "CELossWeight": 1,
+  "LearningRate": 0.01,
+  "WeightDecay": -1,
+  "DataAugmentation": false,
+  "DataAugmentation:Params": {"AugmentTeacher": true},
+
+  "ExpPowersetErasing": false,
+  "Optimizer": "",
+
+  "LRScheduler": "",
+  "LRScheduler:MultiStep:Params": {"LRSteps": [], "LRStepMult": 0.1},
+  "LRScheduler:Exp:Params": {"ExpPower": 0.9},
+  "LRScheduler:OneCycle:Params": {"PctStart": 0.3, "MaxLR": 0.0075},
+  "LRScheduler:!OneCycle:Params": {"LearningRate": 0.01},
+  
+  "BatchSize": 128,
+  "NumEpochs": 50,
+  "NumRuns": 1,
+  "EvalInterval": 1,
+  "CheckpointInterval": -1,
+  "SaveResult": true,
+  "SaveModel": true,
+
+  ":": ["EvalInterval", "CheckpointInterval", "SaveModel", "SaveResult", "StoreFeatures"]
+}

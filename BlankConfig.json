@@ -1,0 +1,69 @@
+{
+    "Dataset": "",
+    "EmbedDimension": -1,
+    "Subset": -1,
+    
+    "Model": "",
+    "PreTrained": false,
+    "BackboneLRMultiplier": 1,
+    "AvgTokens": true,
+    "BatchNorm": true,
+    
+    "UseCELoss": true,
+    "SeperateLinear": false,
+    
+    "Teacher": "",
+    
+    "VanillaKD": false,
+    "Logits": "",
+    "Temperature": -1.0,
+    
+    "FeatureKD": false,
+    "StoreFeatures": true,
+    
+    "UseCosineLoss": false,
+    "UseHuberLoss": false,
+    
+    "TeacherLayers": [],
+    "StudentLayers": [],
+    "LayerMappingMethod": "One2One",
+    
+    "LayerMap": [[]],
+    "LayerMapWeights": [[]],
+
+    "StudentPartitions": [],
+    "TeacherPartitions": [],
+    "AttnArchitecture": [256, 128],
+    "AttnInput": "DPS",
+    
+    "ProjectionMethod": "",
+    
+    "UseGlobalCenter": true,
+    "LandmarkMethod": "CC",
+    "LandmarkPostScaleFactor": 1.0,
+    
+    "ProjectorArchitecture": "ThreeLayerConv",
+
+    "RelationFunction": "DotProd",
+    
+    "CELossWeight": 1,
+    "LGLossWeight": 1,
+    "LSLossWeight": 1,
+    
+    "LearningRate": 0.1,
+    "WeightDecay": -1,
+    
+    "Optimizer": "AdamW",
+    
+    "LRScheduler": "OneCycle",
+    "MaxLR": -1.0,
+    
+    "BatchSize": 128,
+    "NumEpochs": 25,
+    "NumRuns": 3,
+    "EvalInterval": 1,
+    "CheckpointInterval": -1,
+    
+    "SaveResult": true,
+    "SaveModel": true
+}
