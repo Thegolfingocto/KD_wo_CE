@@ -1,3 +1,11 @@
+'''
+Code written by Nicholas J. Cooper.
+Released under the MIT license, see the GitHub page for the full legal boilerplate.
+tldr: you freely can do whatever you like with this code, but please cite the GitHub at: https://github.com/Thegolfingocto/KDwoCE.git
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+'''
+
+
 import torch
 import torchvision
 

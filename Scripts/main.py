@@ -191,47 +191,12 @@ def TestBench():
     T = KDTrainer("../KDTrainer", Config, bStartLog = True)
     
     if Config["FeatureKD"] or Config["VanillaKD"]: T.SetTeacher(ConstructTeacher(Config["Teacher"], Config["Dataset"], bDataAug = Config["DataAugmentation"]))
-    
-    #TPlotLRSweep(T)
-    #T.LoadModel()
-    #T.ILoadComponents()
-    #T.LoadTrainedModel()
-    #print(T.Eval())
-
-    # T.FindCachedStuff("Model.pth", dFilter = 
-    #                      {"Model": "VGG19", "PreTrained": True, "Dataset": "CIFAR100F", "MaxLR": 0.005, "NumEpochs": 50, "DataAugmentation": True}, 
-    #                     bDir = False, bPrint = True, cFoundItemCB = T.DisplayResultCB)
-
-    #TPlotLRSweep(T)
-    #TPlotClassificationEfficiency(T.kdTeacher, bNormalize=False)
-    
-    # T.ILoadModel()
-    # print(T.Eval())
 
     T.IDisplayResult() #will train if config not found
 
-    TPlotClassificationEfficiency(T)
+    #TPlotClassificationEfficiency(T)
 
     quit()
-
-    #T.GenPerLayerFeatures() #WARNING! REMEMBER THE TEMPORARY HACK TODO WARNING WARNING!
-
-    #quit()
-
-    iSL = 0
-    vecT = [T]
-    #vecT = AutoAddTrainers(T, "Model", ["ResNet34", "ViT_B"])
-    #vecT = AutoAddTrainers(T, "Dataset", ["CIFAR100F", "TinyImagenet"])
-    A = PerLayerFeatureAnalyzer(vecT, iSL, vecNormalizeNames = ["Ambient Dimension", "Class Norm", "Lifetime Sum", "Number of Lifetimes"], 
-                                bConsolidateTrainerPlots = False,
-                                iPlotsPerRow = 1)
-    
-    sPCA = PCAStats()
-
-    A.AddStat(sPCA)
-
-
-    A.IPlotStats()
     
     return
 

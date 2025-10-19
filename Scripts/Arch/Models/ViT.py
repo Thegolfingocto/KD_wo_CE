@@ -13,13 +13,10 @@ except:
     from ModelUtils import *
 
 #Path config
-if os.environ["USER"] == "nickubuntu" or os.environ["USER"] == "nickubuntuworkstation":
-    strModelDir = "/home/" + os.environ["USER"] + "/ImagenetPretrainedModels/"
-elif os.environ["USER"] == "nicklaptop":
-    strModelDir = "/home/nicklaptop/ImagenetPretrainedModels/"
-else:
+strModelDir = "/home/" + os.environ["USER"] + "/ImagenetPretrainedModels/"
+if not os.path.isdir(strModelDir):
     strModelDir = "NOT SET UP YET!"
-    print("Double check path config!")
+    print("Double check pre-trained model path!")
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
