@@ -11,7 +11,7 @@ import torch
 from typing import List, Optional, Iterable
 import copy
 
-from Models.ModelUtils import *
+from Arch.Models.ModelUtils import *
 
 class ISeq(torch.nn.Module):
     '''
@@ -105,6 +105,7 @@ class IModel(torch.nn.Module):
                 continue
 
             x = tLayer(x)
+            print(x.shape)
 
             if bNaNCheck:
                 tCheck = torch.sum(x)

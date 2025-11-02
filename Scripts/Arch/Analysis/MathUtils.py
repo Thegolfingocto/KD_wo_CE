@@ -16,8 +16,8 @@ import subprocess
 import os
 import copy
 import time
-from Models.Misc import LinearHead
-from Models.ModelUtils import CountParams
+from Arch.Models.Misc import LinearHead
+from Arch.Models.ModelUtils import CountParams
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -865,6 +865,7 @@ def TrainToThreshold(tModel: torch.nn.Module, X: torch.tensor, YA: torch.tensor,
         "EpochsRequired": iE,
         "TrainAccuracy": (acc / X.shape[0]).to("cpu").item(),
         "TestAccuracy": (tacc / TX.shape[0]).to("cpu").item(),
+        "GeneralizationGap": (acc / X.shape[0]).to("cpu").item() - (tacc / TX.shape[0]).to("cpu").item(),
         "Params": CountParams(tModel),
         "TrainTime": fAvgTrainTime,
         "TestTime": fAvgTestTime,

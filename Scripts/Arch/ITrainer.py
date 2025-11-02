@@ -518,11 +518,11 @@ class ITrainer(ICache):
             else:
                 self.dModules["Model"] = self.tModel #wrapper to allow easy additions to the main optimizer
             
-            torch.set_float32_matmul_precision('high')
-            if isinstance(self.tModel, torch.nn.Module):
-                self.tModel = torch.compile(self.tModel)
-            elif isinstance(self.tModel, IModel):
-                self.tModel.forward = torch.compile(self.tModel.forward)
+            # torch.set_float32_matmul_precision('high')
+            # if isinstance(self.tModel, torch.nn.Module):
+            #     self.tModel = torch.compile(self.tModel)
+            # elif isinstance(self.tModel, IModel):
+            #     self.tModel.forward = torch.compile(self.tModel.forward)
             
             return True
         

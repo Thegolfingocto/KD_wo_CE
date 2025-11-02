@@ -8,7 +8,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
 from typing import List, Callable
 import os
-import hashlib
 import shutil
 import json
 from inspect import ismethod
@@ -32,7 +31,7 @@ class ICache(IConfig):
         
         if not hasattr(self, "strBaseDir"):
             if len(strDirectoryName) == 0:
-                printf("No strBaseDir nor strDirectoryName provided!", ERROR)
+                printf("No strBaseDir or strDirectoryName provided!", ERROR)
             self.strBaseDir = strDirectoryName
         #Make sure path string is in the correct format
         if self.strBaseDir[-1] != "/": self.strBaseDir += "/"
@@ -99,21 +98,25 @@ class ICache(IConfig):
         
         return
     
-    def UpdateCacheMap(self) -> None:
+    def UpdateCacheMap(self, dTempCfg: dict = None) -> str:
         '''
-        Adds current configuration to the cache map if it does not already exist
+        Adds current configuration to the cache map if it does not already exist and returns its hash ID
         '''
-        strHash = self.IGenHash()
+        if dTempCfg is None: dTempCfg = copy.deepcopy(self.dCfg)
+
+        strHash = self.IGenHash(dTempCfg)
         if strHash not in self.CacheMap.keys():
-            self.CacheMap[strHash] = self.dCfg
+            self.CacheMap[strHash] = dTempCfg
             with open(self.strBaseDir + "CacheMap.json", "w") as f:
                 json.dump(self.CacheMap, f)
 
-        if not os.path.isdir(self.GetCurrentFolder()):
-            os.mkdir(self.GetCurrentFolder())
-            with open(self.GetCurrentFolder() + "Config.json", "w") as f:
-                json.dump(self.dCfg, f, indent = 2)
-        return
+        strCfgFolder = self.strBaseDir + strHash + "/"
+        if not os.path.isdir(strCfgFolder):
+            os.mkdir(strCfgFolder)
+            with open(strCfgFolder + "Config.json", "w") as f:
+                json.dump(dTempCfg, f, indent = 2)
+        
+        return strHash
 
     def LoadCacheMap(self, bCheckHash = True) -> None:
         '''

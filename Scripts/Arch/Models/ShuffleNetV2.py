@@ -6,10 +6,13 @@ import torch.nn as nn
 import os
 
 #Path config
-strModelDir = "/home/" + os.environ["USER"] + "/ImagenetPretrainedModels/"
-if not os.path.isdir(strModelDir):
+if os.environ["USER"] == "nickubuntu" or os.environ["USER"] == "nickubuntuworkstation":
+    strModelDir = "/home/" + os.environ["USER"] + "/ImagenetPretrainedModels/"
+elif os.environ["USER"] == "nicklaptop":
+    strModelDir = "/home/nicklaptop/ImagenetPretrainedModels/"
+else:
     strModelDir = "NOT SET UP YET!"
-    print("Double check pre-trained model path!")
+    print("Double check path config!")
 
 def conv_bn(inp, oup, stride):
     return nn.Sequential(

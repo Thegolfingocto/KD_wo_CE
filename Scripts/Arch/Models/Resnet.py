@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import os
 
-from Models.ModelUtils import *
-from Models.Misc import *
+from Arch.Models.ModelUtils import *
+from Arch.Models.Misc import *
 
 #original codes taken from: https://github.com/huyvnphan/PyTorch_CIFAR10/tree/master and https://github.com/chenyaofo/pytorch-cifar-models/blob/master/pytorch_cifar_models/resnet.py
 #Modifications are done to facilitate integration with other projects and to ensure ease of configuration and linearizable model structures
@@ -19,10 +19,13 @@ model_urls = {
 '''
 
 #Path config
-strModelDir = "/home/" + os.environ["USER"] + "/ImagenetPretrainedModels/"
-if not os.path.isdir(strModelDir):
+if os.environ["USER"] == "nickubuntu" or os.environ["USER"] == "nickubuntuworkstation":
+    strModelDir = "/home/" + os.environ["USER"] + "/ImagenetPretrainedModels/"
+elif os.environ["USER"] == "nicklaptop":
+    strModelDir = "/home/nicklaptop/ImagenetPretrainedModels/"
+else:
     strModelDir = "NOT SET UP YET!"
-    print("Double check pre-trained model path!")
+    print("Double check path config!")
 
 __all__ = [
     "ResNet",

@@ -30,7 +30,28 @@ class IDataset:
         self.iBatchSize: int = iBatchSize
         self.iDownSample: int = iDownSample
 
-        self.strBaseDir = "/home/" + getpass.getuser() + "/Datasets/" if strBaseDir is None else strBaseDir
+        #try to find a path to the datasets
+        self.strBaseDir = None
+        strCfgPath = os.fsdecode(os.path.realpath(__file__)).replace("IDataset.py", "DatasetsCfg.json")
+        if strBaseDir is not None: self.strBaseDir = strBaseDir
+        elif os.path.exists(strCfgPath):
+            with open(strCfgPath, "r") as f:
+                dCfg = json.load(f)
+                if "DatasetsPath" in dCfg.keys(): self.strBaseDir = dCfg["DatasetsPath"]
+        
+        #if nothing worked, ask the user what they want to do
+        if self.strBaseDir is None:
+            strGuessDir = "/home/" + getpass.getuser() + "/Datasets/"
+            print("IDataset could not find a path to the Datasets folder and will attempt to use {} instead.".format(strGuessDir))
+            if GetInput("Would you like to enter a path now? (Y/X)"):
+                self.strBaseDir = input("Enter path to Datasets folder: ")
+                with open(strCfgPath, "w") as f:
+                    json.dump({"DatasetsPath": self.strBaseDir}, f)
+
+            else: self.strBaseDir = strGuessDir
+
+        if self.strBaseDir[-1] != "/": self.strBaseDir += "/"
+        
         self.strFolder = ""
         self.strCacheDir = "./DownloadCache/"
         self.strDownloadURL: str = ""
