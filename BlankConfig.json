@@ -42,7 +42,7 @@
     "LandmarkMethod": "CC",
     "LandmarkPostScaleFactor": 1.0,
     
-    "ProjectorArchitecture": "ThreeLayerConv",
+    "ProjectorArchitecture": "SingleLayerConv",
 
     "RelationFunction": "DotProd",
     

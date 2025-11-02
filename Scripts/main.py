@@ -97,7 +97,7 @@ def TestBench():
     
     #These fields define the distillation layer scheme independantly from the distillation technique
 
-    #-------------Temporary Note--------------#
+    #-------------Important Note--------------#
     #All Major Model "standard" layer selections
     #VGG19 := [1, 3, 7, 11, 15, 16]
     #VGG11 := [0, 1, 3, 5, 7, 8]
@@ -186,7 +186,7 @@ def TestBench():
     Config["CheckpointInterval"] = -1 #save model every N epochs. Set to -1 to disable
     
     Config["SaveResult"] = True
-    Config["SaveModel"] = True #DON'T TURN ON UNLESS ITS WORTH IT, YA DINGUS
+    Config["SaveModel"] = True
 
     T = KDTrainer("../KDTrainer", Config, bStartLog = True)
     
