@@ -193,9 +193,7 @@ def TestBench():
 
     T.IDisplayResult() #will train if config not found
 
-    TPlotClassificationEfficiency(T)
-
-    quit()
+    #TPlotClassificationEfficiency(T)
     
     return
 
