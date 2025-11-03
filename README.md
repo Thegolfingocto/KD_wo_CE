@@ -45,12 +45,12 @@ As mentioned above, all config files used for experiments in the paper are inclu
 * Make yourself a snack (optional) while you wait for terminals A and B to complete (not optional).
 * Launch experiments for the remaining model pairs, rinse and repeat until complete.
 
-The above procedre will ensure that only managable sections of the total experiment pool will be run at once. You can of course modify this workflow (or set up a bash script) to leverage however many GPUs you have available to you. The experiment caching system allows for incremental passes while safely storing away all the results for future visualization. 
+The above procedure will ensure that only managable sections of the total experiment pool will be run at once. You can of course modify this workflow (or set up a bash script) to leverage however many GPUs you have available to you. The experiment caching system allows for incremental passes while safely storing away all the results for future visualization. 
 
 ## Feature Analysis
 If you wish to compute and plot the geometric summaries of a model's latent features, uncomment the call to `TPlotClassificationEfficiency()` on line 197 of `main.py`. **WARNING**: computing such metrics can require significant disk space and computational resources depending on the dataset. The compute cost of running the analysis is highly dependent on the *dataset* for CNNs, and less so for ViTs. It requires around 32gb RAM and 16gb VRAM for small datasets (e.g., CIFAR10/100), whereas 96gb RAM and 24gb VRAM are recommended for larger datasets (e.g., TinyImagenet).
 
-The analysis computes the geometric quantities discussed in the paper. All features and numeric data will be saved to the disk in the corresponding experiment's cache folder. It is easy to run out of disk space when analyzing many different models, so you may need to periodically delete some of the features.
+The analysis computes the geometric quantities discussed in the paper. *All features and numeric data will be saved to the disk in the corresponding experiment's cache folder.* It is easy to run out of disk space when analyzing many different models, so you may need to periodically delete some of the features.
 
 ## Plotting Results
 Various plotting scripts are provided in `Plotfigs.py`. However, they will be largely useless until all the configs in the `ExperimentConfigs/MainExperiments` folder have been run. Basic training curves (losses and accuracies vs. epochs) can be easily displayed for any individual experiment by pointing `main.py` to the corresponding config.
@@ -58,7 +58,7 @@ Various plotting scripts are provided in `Plotfigs.py`. However, they will be la
 # Code Overview
 
 ## ITrainers and the Arch "Submodule"
-Much of this project is based on some "experiment-to-disk hashmap" utilities I've been developing for the past few years. This is everything in the `Scripts/Arch` folder. I plan to release this code as a standalone repo in the future, when it is closer to its final form. Currently, it is still being actively developed, which is why it is directly copied here instead of linked in via submodules.
+Much of this project is based on some "experiment-to-disk hashmap" utilities I've been developing for the past few years. This is everything in the `Scripts/Arch` folder. I plan to release this code as a standalone repo in the future, when it is closer to its final form. As it is still being actively developed, it has been directly copied here instead of linked in via submodules.
 
 The key point of the `Arch` code is to make keeping track of complex KD experiments easier; as such experiments may, and often do, depend on a lot of inter-related parameters. This goal is accomplished via config hashing. The `KDTrainer/BaselineConfig.cjson` file contains the rules for deciding how hashes are computed based on the config parameters. This establishes the logic for handling sub-parameters, e.g., the "Teacher" field is only relevant when one is training a model with some form of distillation.
 
