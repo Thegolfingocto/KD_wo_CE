@@ -177,8 +177,8 @@ def PlotMainExperimentResults(vecExperiments: list[list[str]] = None, iRef: int 
             vecR.append(max([dR["Runs"][i]["TestMetrics"][j][1] for j in range(dR["NumEpochs"])]))
         iL = len(vecR)
         nR = np.array(vecR)
-        #Sometimes, training with OneCycle can result in un-representatively poor outliers.
-        #In these cases, throw out the outliers
+        #Sometimes, training with OneCycle can result in un-representatively poor outliers for baseline methods.
+        #In these cases, throw out the outliers to ensure we give the baselines the best chance to compare favorably.
         vecIdx = []
         for i in range(dR["NumRuns"]):
             if nR[i] < np.max(nR) - 0.01: continue

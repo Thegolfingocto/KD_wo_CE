@@ -135,11 +135,25 @@ def GetRandomSubset(Y: torch.tensor, iN: int) -> torch.tensor:
     
     return idx
 
-def SplitLabelsByClass(Y: torch.Tensor) ->list[torch.Tensor]:
-    c = Y.shape[1]
-    Y = torch.argmax(Y, dim = 1).to("cpu")
+def SplitLabelsByClass(Y: torch.Tensor) -> list[torch.Tensor]:
+    '''
+    Returns a list of index tensors based on the class labels in Y.
+    Compatible with both one-hot encoded and integer label schemes.
+    '''
+    if len(Y.shape) == 2:
+        c = Y.shape[1]
+        Y = torch.argmax(Y, dim = 1).to("cpu")
+    elif len(Y.shape) == 1:
+        c = torch.max(Y) + 1
+    
     vecIdx = [torch.where(Y == i)[0] for i in range(c)]
+
     return vecIdx
+
+def SplitTrainFeaturesByClass(F: torch.tensor, Y: torch.tensor) -> list[torch.tensor]:
+    vecIdx = SplitLabelsByClass(Y)
+
+    return [F[idx,...] for idx in vecIdx]
 
 def ListEquals(vecX: list, vecY: list) -> bool:
     if len(vecX) != len(vecY): return False

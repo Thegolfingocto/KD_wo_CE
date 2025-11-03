@@ -19,7 +19,6 @@ from Arch.IConfig import *
 from Arch.Utils import *
 
 from Arch.Analysis.MathUtils import ComputeDistanceMatrix, ComputeDPMatrix
-from LoadData import SplitTrainFeaturesByClass
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

@@ -11,7 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 import torch
 import argparse
 
-from LoadData import *
 from Arch.Models.ModelUtils import *
 
 from FeatureUtils import *
@@ -194,7 +193,7 @@ def TestBench():
 
     T.IDisplayResult() #will train if config not found
 
-    #TPlotClassificationEfficiency(T)
+    TPlotClassificationEfficiency(T)
 
     quit()
     

@@ -1,22 +1,28 @@
 # Setup
-* Clone this repository somewhere, then `cd` into the `Scripts` folder.
+* Clone this repository somewhere.
 * Create a new virtual environment with `python3 -m venv {desired_venv_path}`.
 * Activate the new environment with `source {desired_venv_path}/bin/activate`.
-* Make sure you have the necessary python packages
-    + Run `python -m pip install torch torchvision numpy` to get started.
-    + Either fix missing packages as you need, or install everything in the `requirements.txt` file.
-    + Depending on which part(s) of the code you wish to use, many packages may not be necessary.
+* Install the necessary python packages
+    + Run `python -m pip install torch torchvision numpy matplotlib scipy tqdm scikit-learn pandas` to get started.
+    + The above should be everything you need. If for some reason it doesn't work, you can try installing everything in the `requirements.txt` file.
+    + On some linux distros, you may need to run `python -m pip install PyQt6` to get the matplotlib GUI to work.
 * Test the setup
     + `cd` into the repo's Scripts folder, and try running `python ./main.py`
-    + If sucessful, this should attempt to run a basic train/display loop (Resnet on CIFAR10)
+    + If the setup was sucessful, this will go download CIFAR10 then run a basic train/display loop with a small ResNet.
 
 
 ## Important Notes
-* This software was developed for use on Linux-based operating systems **only**. I have absolutely no idea how well it will work on Windows/Mac, if at all. Some modifications will likely be necessary. Furthermore, the existence of a CUDA capable GPU is assumed.
+
+### Environment
+* This software was developed on Ubuntu 24.04 and is suitable for use on Linux-based operating systems **only**. I have absolutely no idea how well it will work on Windows/Mac, if at all. Some modifications will likely be necessary. 
+* The existence of a CUDA capable GPU is assumed.
+* Developed using python 3.12.
+
+### Code Behavior
 * By default, the IDataset interface class will look for a path to store dataset files in /Scripts/Datasets/DatasetsCfg.json. When you first run the main.py script, it will prompt you to specify a dataset storage location, and use `/home/{username}/Datasets/` as a fallback.
 * If you want to do things with pre-trained weights for some teacher models, you will need to go download them yourself. Web links have been left as comments in the applicable places, e.g., if you want to use the same ResNet34 weights, you can find the link in `Scripts/Arch/Models/Resnet.py`.
     + The code assumes all downloaded pre-trained weights are saved to `/home/{username}/ImagenetPretrainedModels/`.
-    
+
 
 # Usage
 
@@ -25,10 +31,10 @@ I imagine there are two primary things you'll want to do with this code:
 * Run experiments one-at-a-time
 * Run a whole bunch of experiments all-at-once
 
-Therefore, there are two primary use cases of the `main.py` script. If no arguments are passed, the config defined in the `TestBench()` function on line 52 will be run. You can mess with configuration parameters there, and run the corresponding experiment with `python ./main.py`. Alternatively, you can pass `-c {path_to_config_file}` to point the code at a config on the disk. Use `-e {path_to_folder}` to run all config files in the directory. Config files for the major experiments reported on in the paper have been provided in the `ExperimentConfigs/MainExperiments/` folder. Experiment results will be automatically assigned a hash ID and stored in the `KDTrainer` folder.
+Therefore, there are two primary use cases of the `main.py` script. If no arguments are passed, the config defined in the `TestBench()` function on line 52 will be run. You can mess with configuration parameters there, and run the corresponding experiment with `python ./main.py`. Alternatively, you can pass `-c {path_to_config_file}` to point the code at a config on the disk. A blank config file has been provided for use as a starting point. You can also use `-e {path_to_folder}` to run all config files in a directory. Config files for the major experiments reported on in the paper have been provided in the `ExperimentConfigs/MainExperiments/` folder. Experiment results will be automatically assigned a hash ID and stored in the `KDTrainer` folder.
 
 ## Reproducing the Paper's Results
-As mentioned above, all config files used for experiments in the paper are included in the `ExperimentConfigs/MainExperiments/` folder. I highly recommend to **NOT** simply try to run every experiment all-at-once, as this will likely take several days (depending on your GPU). If you have access to a multi-GPU machine with sufficient RAM and PCIe lanes, I therefore recommend leveraging the multi-level organization of the experiment configs to parallelize things across workers. For example, if I wanted to re-run all the CIFAR100 experiments on a system with 2 GPUs, I would proceed as follows:
+As mentioned above, all config files used for experiments in the paper are included in the `ExperimentConfigs/MainExperiments/` folder. I highly recommend to **NOT** simply try to run every experiment all-at-once, as this will likely take several days (depending on your GPU). If you have access to a multi-GPU machine with sufficient RAM and PCIe lanes, I recommend leveraging the multi-level organization of the experiment configs to parallelize things across workers. For example, if I wanted to re-run all the CIFAR100 experiments on a system with 2 GPUs, I would proceed as follows:
 * Launch a new terminal. Call this terminal A.
     + Optional: launch a `tmux` or `screen` if running things on a remote system to prevent unnecessary crashes.
 * Run `export CUDA_VISIBLE_DEVICES=0`. This will ensure Pytorch executes everything on the first GPU.
@@ -42,7 +48,12 @@ As mentioned above, all config files used for experiments in the paper are inclu
 The above procedre will ensure that only managable sections of the total experiment pool will be run at once. You can of course modify this workflow (or set up a bash script) to leverage however many GPUs you have available to you. The experiment caching system allows for incremental passes while safely storing away all the results for future visualization. 
 
 ## Feature Analysis
-If you wish to compute and plot the geometric summaries of a model's latent features, uncomment the call to `TPlotClassificationEfficiency()` on line 197 of `main.py`. **WARNING**: computing such metrics can require significant disk space and computational resources depending on the dataset.
+If you wish to compute and plot the geometric summaries of a model's latent features, uncomment the call to `TPlotClassificationEfficiency()` on line 197 of `main.py`. **WARNING**: computing such metrics can require significant disk space and computational resources depending on the dataset. The compute cost of running the analysis is highly dependent on the *dataset* for CNNs, and less so for ViTs. It requires around 32gb RAM and 16gb VRAM for small datasets (e.g., CIFAR10/100), whereas 96gb RAM and 24gb VRAM are recommended for larger datasets (e.g., TinyImagenet).
+
+The analysis computes the geometric quantities discussed in the paper. All features and numeric data will be saved to the disk in the corresponding experiment's cache folder. It is easy to run out of disk space when analyzing many different models, so you may need to periodically delete some of the features.
+
+## Plotting Results
+Various plotting scripts are provided in `Plotfigs.py`. However, they will be largely useless until all the configs in the `ExperimentConfigs/MainExperiments` folder have been run. Basic training curves (losses and accuracies vs. epochs) can be easily displayed for any individual experiment by pointing `main.py` to the corresponding config.
 
 # Code Overview
 

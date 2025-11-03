@@ -14,85 +14,19 @@ from typing import Callable
 
 try:
     from Arch.Analysis.MathUtils import *
-    from Arch.Analysis.EntropyEstimators import *
     from Arch.Models.ModelUtils import *
     from Arch.Utils.Utils import *
 except:
     from MathUtils import *
-    from EntropyEstimators import *
     from Models.ModelUtils import *
     from Utils.Utils import *
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def IComputeSlicedMI(F: torch.Tensor, YA: torch.Tensor, m: int = 1000, bVerbose: bool = False) -> float:
-    F = F.reshape(F.shape[0], -1).to(device)
-    dim = F.shape[1]
-    SMI = 0
-
-    if bVerbose:
-        for _ in tqdm.tqdm(range(m)):
-            tProj = torch.rand(dim, 1) - 0.5
-            tProj /= torch.norm(tProj)
-            X = torch.mm(F, tProj.to(device))
-            SMI += mi(X.to("cpu").numpy(), YA.numpy()) * (1 / m)
-    else:
-        for _ in range(m):
-            tProj = torch.rand(dim, 1) - 0.5
-            tProj /= torch.norm(tProj)
-            X = torch.mm(F, tProj.to(device))
-            SMI += mi(X.to("cpu").numpy(), YA.numpy()) * (1 / m)
-
-    return {"SMI": SMI}
-
-def IComputeKSlicedMI(F: torch.Tensor, YA: torch.Tensor, m: int = 1000) -> float:
-    F = F.view(F.shape[0], -1).to(device)
-    dim = F.shape[1]
-    KSMI = 0
-    k = torch.max(YA) + 1 #number of classes
-    k = 10 #hardcode testing
-    for _ in tqdm.tqdm(range(m)):
-        tProj = torch.rand(dim, k, device = device) - 0.5
-        tProj /= torch.norm(tProj, dim = 0, keepdim = True)
-        X = F @ tProj
-        KSMI += mi(X.to("cpu").numpy(), YA.numpy()) * (1 / m)
-
-    return {"KSMI": KSMI}
-
-def IComputeConv2SlicedMI(F: torch.Tensor, YA: torch.Tensor, m: int = 1000) -> float:
-    F = F.to(device)
-    assert len(F.shape) in [2, 4], "Conv2SMI expects CHW tensors"
-    KSMI = 0
-    k = torch.max(YA) + 1 #number of classes
-    k = 10 #hardcode testing
-    for _ in tqdm.tqdm(range(m)):
-        if len(F.shape) == 4:
-            tConv2 = torch.nn.Conv2d(F.shape[1], k, kernel_size = F.shape[2], padding = 0, bias = False)
-            #torch.nn.init.kaiming_normal_(tConv2.weight, mode="fan_out", nonlinearity="relu")
-
-            tW = torch.rand_like(tConv2.weight) - 0.5
-            #print(tW.shape)
-            tW /= torch.norm(tW.view(tW.shape[0], -1), dim = 1, keepdim = True).unsqueeze(-1).unsqueeze(-1)
-            #print(tW.shape)
-            tConv2.weight = torch.nn.Parameter(tW)
-
-            tConv2 = tConv2.to(device)
-            with torch.no_grad():
-                X = tConv2(F)
-        else:
-            Fv = F.view(F.shape[0], -1)
-            tProj = torch.rand(Fv.shape[1], k, device = device) - 0.5
-            tProj /= torch.norm(tProj, dim = 0, keepdim = True)
-            X = F @ tProj
-        
-        KSMI += mi(X.to("cpu").numpy(), YA.numpy()) * (1 / m)
-
-    return {"Conv2SMI": KSMI}
-
 
 def IComputeCovarianceStats(F: torch.Tensor, Y: torch.Tensor) -> dict:
-    nc = Y.shape[1]
+    nc = Y.shape[1] if len(Y.shape) == 2 else torch.max(Y) + 1
 
     tF = F.view(F.shape[0], -1)
     tNorms = torch.norm(tF, dim = 1).to("cpu")
@@ -172,7 +106,7 @@ def IComputeCovarianceStats(F: torch.Tensor, Y: torch.Tensor) -> dict:
         "Compression": C,
         "Discrimination": D,
         "IntraClassCovariance": W.to("cpu").item(),
-        "ClassCenterCovariance": B,
+        "ClassCenterCovariance": B.to("cpu").item(),
         "MinIntraClassDPS": vecMinDPS,
         "AvgIntraClassDPS": vecAvgDPS,
         "MaxIntraClassDPS": vecMaxDPS,
@@ -192,32 +126,9 @@ def IComputeCovarianceStats(F: torch.Tensor, Y: torch.Tensor) -> dict:
     
     return dRet
 
-def IComputeHODMtxStats(tF: torch.tensor, bComputeRLEDist: bool = True) -> dict:
-    tIdxTriu = torch.triu_indices(tF.shape[0], tF.shape[0], offset = 1)
-
-    if bComputeRLEDist:
-        tHODMtx, tRLEMtx = ComputeHODMtx(tF, bVerbose = True, bComputeRLEDist = bComputeRLEDist)
-        tRLEMtx = tRLEMtx.to("cpu").float()
-        tFlatRLEMtx = tRLEMtx[tIdxTriu[0], tIdxTriu[1]]
-    else: 
-        tHODMtx = ComputeHODMtx(tF, bVerbose = True, bComputeRLEDist = bComputeRLEDist)
-    tHODMtx = tHODMtx.to("cpu").float()
-    tFlatDistMtx = tHODMtx[tIdxTriu[0], tIdxTriu[1]]  
-
-    dRet = {
-        "AvgHOD": torch.mean(tFlatDistMtx).to("cpu").item(),
-        "StdHOD": torch.std(tFlatDistMtx).to("cpu").item(),
-        }
-    
-    if bComputeRLEDist:
-        dRet["AvgRLE"] = torch.mean(tFlatRLEMtx).to("cpu").item()
-        dRet["StdRLE"] = torch.std(tFlatRLEMtx).to("cpu").item()
-
-    return dRet
 
 def IComputeDistMtxStats(tF: torch.tensor, vecClsIdx: list[torch.tensor]) -> dict:
-    tDistMtx = ComputeDistanceMatrix(tF, bVerbose = True).to("cpu")
-    n = tDistMtx.shape[0]
+    n = tF.shape[0]
     nc = len(vecClsIdx)
     tF = tF.view(tF.shape[0], -1)
     tNorms = torch.norm(tF, dim = 1).to("cpu")
@@ -226,6 +137,9 @@ def IComputeDistMtxStats(tF: torch.tensor, vecClsIdx: list[torch.tensor]) -> dic
         tCenters[i,:] = torch.mean(tF[vecClsIdx[i],:], dim = 0)
 
     tCentersDistMtx = ComputeDistanceMatrix(tCenters).to("cpu")
+    
+    tDistMtx = ComputeDistanceMatrix(tF, bVerbose = True).to("cpu")
+    
 
     #print(tCentersDistMtx)
 
@@ -307,7 +221,8 @@ def IComputeDistMtxStats(tF: torch.tensor, vecClsIdx: list[torch.tensor]) -> dic
     
     return dRet
 
-def IComputeDistMtxIDs(F: torch.Tensor) -> dict:
+def IComputeDistMtxIDs(tF: torch.Tensor) -> dict:
+    F = tF
     F = F.view(F.shape[0], -1)
     
     tNorms = torch.norm(F, dim=1, keepdim=True)
@@ -345,7 +260,8 @@ def ComputeClassPCAID(F: torch.Tensor, Y: torch.Tensor) -> torch.Tensor:
 
     return tRet
 
-def IComputePCAID(F: torch.Tensor, fThreshold: float = 0.9) -> dict:
+def IComputePCAID(tF: torch.Tensor, fThreshold: float = 0.9) -> dict:
+    F = tF
     F = F.reshape(F.shape[0], -1).to(device)
     iAD = F.shape[1]
     if F.shape[1] > F.shape[0]:
@@ -365,149 +281,3 @@ def IComputePCAID(F: torch.Tensor, fThreshold: float = 0.9) -> dict:
         "TotalVariance": float(totalVar),
         "HostDim": iAD
     }
-
-
-def IComputeBinaryDPStats(F: torch.tensor) -> dict:
-    tF = F.view(F.shape[0], -1)
-    tF /= torch.norm(tF, dim = 1, keepdim = True) #normalize for computing the DPS
-
-    tDPM = torch.abs(ComputeDPMatrix(tF)).to("cpu")
-
-    iN = tF.shape[0]
-    idxTriu = torch.triu_indices(iN, iN, 1)
-    #tDPS = torch.triu(torch.abs(tDPM), diagonal = 1).view(-1)
-    tDPS = tDPM[idxTriu[0], idxTriu[1]]
-    #tDPS = tDPM.flatten()[1:].view(iN - 1, iN + 1)[:,:-1]        #.reshape(iN, iN - 1)
-    # tDPS = torch.zeros((0))
-    # for i in range(iN):
-    #     for j in range(i + 1, iN):
-    #         tDPS = torch.cat((tDPS, tDPM[i:i+1, j]))
-
-    print(tDPS.shape)
-
-    dRet = {
-        "AvgDPS": torch.mean(tDPS).item(),
-        "StdDPS": torch.std(tDPS).item(),
-
-        "MinDPS": torch.min(tDPS).item(),
-        "MaxDPS": torch.max(tDPS).item(),
-    }
-
-    return dRet
-
-def IComputeTernaryDPStats(F: torch.tensor) -> dict:
-    tF = F.view(F.shape[0], -1)
-    tF /= torch.norm(tF, dim = 1, keepdim = True, p = 3) #normalize for computing the DPS
-
-    tDPM = torch.abs(ComputeTernaryDPMatrix(tF))
-
-    iN = tF.shape[0]
-    tDPS = tDPM[tDPM != 0] #this relies on the watermarks provided by ComputeTernaryDPMatrix()
-    # tDPS = torch.zeros((0))
-    # for i in range(iN):
-    #     for j in range(i + 1, iN):
-    #         for k in range(j + 1, iN):
-    #             tDPS = torch.cat((tDPS, tDPM[i:i+1, j, k]))
-
-    print(tDPS.shape)
-
-    dRet = {
-        "AvgDPS": torch.mean(tDPS).item(),
-        "StdDPS": torch.std(tDPS).item(),
-
-        "MinDPS": torch.min(tDPS).item(),
-        "MaxDPS": torch.max(tDPS).item(),
-    }
-
-    return dRet
-
-
-def IComputeDPSCCStats(F: torch.tensor, fEps: float = 1e-2, bRandom: bool = False) -> dict:
-    tF = F.view(F.shape[0], -1)
-
-    vecCCs, vecDPMs, vecAlphas, fMax, fAvg = ComputeDPSCC(tF, fEps = fEps, bRandom = bRandom)
-
-    tDepth = torch.zeros((tF.shape[0]))
-    vecN = []
-    for tCC in vecCCs:
-        iCnt = 0
-        for i in range(tF.shape[0]):
-            if not tCC[i, -1]: continue #skip disabled cells
-            alpha = tCC[i, -2]
-            tDepth[tCC[i, :alpha]] = torch.maximum(tDepth[tCC[i, :alpha]], alpha)
-            iCnt += 1
-        vecN.append(iCnt)
-
-    iMaxAlpha = int(max([torch.max(tA).item() for tA in vecAlphas])) + 1
-    #print(iMaxAlpha)
-    vecDPS = [torch.zeros((0)) for _ in range(iMaxAlpha)]
-    for i in range(len(vecAlphas)):
-        #print("i:", i)
-        tDPM = vecDPMs[i]
-        #print(torch.mean(tDPM))
-        tAlpha = vecAlphas[i]
-
-        for a in range(int(torch.min(tAlpha)), int(torch.max(tAlpha) + 1)):
-            #print(a)
-            idx = torch.where(tAlpha == a)[0]
-            #print(idx)
-            #input()
-            vecDPS[a] = torch.cat((vecDPS[a], tDPM[idx]))
-
-    vecDPS = vecDPS[2:] #zero-ary and unary don't make sense here
-
-    vecAvgDPS = [torch.mean(tDPS).item() if tDPS.shape[0] != 0 else 0 for tDPS in vecDPS]
-    vecStdDPS = [torch.std(tDPS).item() if tDPS.shape[0] != 0 else 0 for tDPS in vecDPS]
-    vecMaxDPS = [torch.max(tDPS).item() if tDPS.shape[0] != 0 else 0 for tDPS in vecDPS]
-
-
-    dRet = {
-        "AvgDepth": torch.mean(tDepth).item(),
-        "StdDepth": torch.std(tDepth).item(),
-        "MaxDepth": iMaxAlpha,
-
-        "Width": torch.where(tDepth > 0)[0].shape[0] / tDepth.shape[0],
-        "NumCells": vecN,
-        "AD": tF.shape[1],
-
-        "AvgDPS": vecAvgDPS,
-        "StdDPS": vecStdDPS,
-        "MaxDPS": vecMaxDPS,
-
-        "AvgDPSbyLvl": [torch.mean(dpm).item() for dpm in vecDPMs],
-        "StdDPSbyLvl": [torch.std(dpm).item() for dpm in vecDPMs],
-        "MaxDPSbyLvl": [torch.max(dpm).item() for dpm in vecDPMs],
-
-        "AbsMax": fMax,
-        "AbsAvg": fAvg,
-    }
-
-    nAvgDPS = np.array(dRet["AvgDPS"])
-    nAvgDPS /= np.sum(nAvgDPS)
-    dRet["AvgDPSEntropy"] = -1 * np.sum(nAvgDPS * np.log(nAvgDPS))
-
-    nMaxDPS = np.array(dRet["MaxDPS"])
-    nMaxDPS /= np.sum(nMaxDPS)
-    dRet["MaxDPSEntropy"] = -1 * np.sum(nMaxDPS * np.log(nMaxDPS))
-
-    return dRet
-
-
-def main() -> None:
-    # tF = torch.zeros((6, 100))
-    # tF[0, :] = 1
-    # tF[1, :] = 1.41
-    # tF[2, :] = 0.72
-    # tF[3:,:] = -1 * tF[:3,:]
-
-    # vecIdx = [[0, 1, 2], [3, 4, 5]]
-
-    # print(IComputeDistMtxStats(tF, vecIdx)["ClassCompression"])
-
-    X = torch.randn((100, 2048))
-    print(IComputeBinaryDPStats(X))
-    print(IComputeTernaryDPStats(X))
-    return
-
-if __name__ == "__main__":
-    main()

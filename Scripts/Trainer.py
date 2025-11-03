@@ -15,7 +15,6 @@ import copy
 import json
 
 #App deps
-from LoadData import *
 from FeatureUtils import *
 from FKD import FKDLoss
 #models

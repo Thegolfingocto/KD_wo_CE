@@ -55,7 +55,8 @@ def TComputePerLayerStats(T: KDTrainer, vecStats: list[int], vecClasses: list[in
     with open(strDir + T.GenFeatureStringLabel(bTeacher = False) + ".pkl", "rb") as f:
         Y = torch.load(f)
 
-    YA = torch.argmax(Y, dim = 1)
+    if len(Y.shape) == 2: YA = torch.argmax(Y, dim = 1)
+    else: YA = Y
     
     strDir = T.GetCurrentFolder() + "Analysis/"
     if not os.path.isdir(strDir): os.mkdir(strDir)
@@ -84,10 +85,10 @@ def TComputePerLayerStats(T: KDTrainer, vecStats: list[int], vecClasses: list[in
     
     #it is intractable to compute ID/PD across all samples. In practice, 5-10k is enough to get an accurate estimate
     tIdx = GetRandomSubset(Y, 5000)
-    tIdx2 = GetRandomSubset(Y, min([500, Y.shape[0] // Y.shape[1]]) * Y.shape[1])
+    tIdx2 = GetRandomSubset(Y, min([500, YA.shape[0] // (torch.max(YA) + 1)]) * (torch.max(YA) + 1))
     
     if vecClasses is not None or 6 in vecStats:
-        vecIdx = [torch.where(torch.argmax(Y[tIdx,...], dim = 1) == c)[0] for c in range(Y.shape[1])]    
+        vecIdx = [torch.where(YA[tIdx] == c)[0] for c in range(torch.max(YA) + 1)]
 
     #loop thru the features
     for iL in vecL:
@@ -181,7 +182,7 @@ def TComputePerLayerStats(T: KDTrainer, vecStats: list[int], vecClasses: list[in
 
         if vecResults[6] is not None:
             tF = F[tIdx,...] if not bSampled else F
-            
+            torch.cuda.empty_cache()
             dDistMtxStats = IComputeDistMtxStats(tF, vecIdx)
 
             print("Layer {} Compression: ".format(iL), dDistMtxStats["ClassCompression"])
