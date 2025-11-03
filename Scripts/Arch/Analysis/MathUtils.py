@@ -19,16 +19,6 @@ from Arch.Models.ModelUtils import CountParams
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-#Cuda speed up is not from github
-
-# Path setup
-if os.environ["USER"] == "nickubuntuworkstation" or os.environ["USER"] == "nicklaptop":
-    strBasePath = "/home/" + os.environ["USER"] + "/Repos/HSKD/"
-elif os.environ["USER"] == "nickubuntu":
-    strBasePath = "/home/" + os.environ["USER"] + "/ReposWSL/HSKD/"
-else:
-    print("NOT SET UP YET!")
-
 def PlotLine3D(p1, p2, ax, color='black', style='solid'):
     t = np.arange(0, 1.01, 0.01)
     line = np.zeros((100, 3))

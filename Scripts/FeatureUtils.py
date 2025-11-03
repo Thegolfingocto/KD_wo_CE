@@ -25,15 +25,6 @@ from Arch.Models.Misc import LinearHead
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-#print(f"Using device '{device}'")
-
-# Path setup
-if os.environ["USER"] == "nickubuntuworkstation" or os.environ["USER"] == "nicklaptop":
-    strBasePath = "/home/" + os.environ["USER"] + "/Repos/HSKD/"
-elif os.environ["USER"] == "nickubuntu":
-    strBasePath = "/home/" + os.environ["USER"] + "/ReposWSL/HSKD/"
-else:
-    print("NOT SET UP YET!")
 
 def NormalizeFeatures(FeaturesPath):
     with open(FeaturesPath, "rb") as f:
