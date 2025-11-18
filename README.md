@@ -34,10 +34,10 @@ I imagine there are two primary things you'll want to do with this code:
 * Run experiments one-at-a-time
 * Run a whole bunch of experiments all-at-once
 
-Therefore, there are two primary use cases of the `main.py` script. If no arguments are passed, the config defined in the `TestBench()` function on line 52 will be run. You can mess with configuration parameters there, and run the corresponding experiment with `python ./main.py`. Alternatively, you can pass `-c {path_to_config_file}` to point the code at a config on the disk. A blank config file has been provided for use as a starting point. You can also use `-e {path_to_folder}` to run all config files in a directory. Config files for the major experiments reported on in the paper have been provided in the `ExperimentConfigs/MainExperiments/` folder. Experiment results will be automatically assigned a hash ID and stored in the `KDTrainer` folder.
+Therefore, there are two primary use cases of the `main.py` script. If no arguments are passed, the config defined in the `TestBench()` function on line 52 will be run. You can mess with configuration parameters there, and run the corresponding experiment with `python ./main.py`. Alternatively, you can pass `-c {path_to_config_file}` to point the code at a config on the disk. A blank config file has been provided for use as a starting point. You can also use `-e {path_to_folder}` to run all config files in a directory. Config files for the experiments reported in the paper have been provided in the `ExperimentConfigs/MainExperiments/` folder. Experiment results will be automatically assigned a hash ID and stored in the `KDTrainer` folder.
 
 ## Reproducing the Paper's Results
-As mentioned above, all config files used for experiments in the paper are included in the `ExperimentConfigs/MainExperiments/` folder. I highly recommend to **NOT** simply try to run every experiment all-at-once, as this will likely take several days (depending on your GPU). If you have access to a multi-GPU machine with sufficient RAM and PCIe lanes, I recommend leveraging the multi-level organization of the experiment configs to parallelize things across workers. For example, if I wanted to re-run all the CIFAR100 experiments on a system with 2 GPUs, I would proceed as follows:
+As mentioned above, all config files used for experiments in the paper are included in the `ExperimentConfigs/MainExperiments/` folder. I highly recommend to **NOT** simply try to run every experiment all-at-once, as this can take several days (depending on your GPU). If you have access to a multi-GPU machine with sufficient RAM and PCIe lanes, I recommend leveraging the multi-level organization of the experiment configs to parallelize things across workers. For example, if I wanted to re-run all the CIFAR100 experiments on a system with 2 GPUs, I would proceed as follows:
 * Launch a new terminal. Call this terminal A.
     + Optional: launch a `tmux` or `screen` if running things on a remote system to prevent unnecessary crashes.
 * Run `export CUDA_VISIBLE_DEVICES=0`. This will ensure Pytorch executes everything on the first GPU.
@@ -48,7 +48,7 @@ As mentioned above, all config files used for experiments in the paper are inclu
 * Make yourself a snack (optional) while you wait for terminals A and B to complete (not optional).
 * Launch experiments for the remaining model pairs, rinse and repeat until complete.
 
-The above procedure will ensure that only managable sections of the total experiment pool will be run at once. You can of course modify this workflow (or set up a bash script) to leverage however many GPUs you have available to you. The experiment caching system allows for incremental passes while safely storing away all the results for future visualization. 
+The above procedure will ensure that only managable sections of the total experiment pool will be run at once. You can of course modify this workflow (or set up a bash script) to leverage however many GPUs you have available. The experiment caching system allows for incremental passes while safely storing away all the results for future visualization. 
 
 ## Feature Analysis
 If you wish to compute and plot the geometric summaries of a model's latent features, uncomment the call to `TPlotClassificationEfficiency()` on line 196 of `main.py`. **WARNING**: computing such metrics can require significant disk space and computational resources depending on the dataset. The compute cost of running the analysis is highly dependent on the *dataset* for CNNs, and less so for ViTs. It requires around 32gb RAM and 16gb VRAM for small datasets (e.g., CIFAR10/100), whereas 96gb RAM and 24gb VRAM are recommended for larger datasets (e.g., TinyImagenet).
@@ -87,4 +87,4 @@ Many of the basic config parameters are rather obvious, so for these I refer you
 By mixing and matching different config parameters, one can recreate many popular FKD and RKD methods. See the provided ExperimentConfigs for some examples of how this works.
 
 # Remarks
-Thank you for checking out this repository! I hope this readme has provided you with sufficient informaiton to accomplish your goals. If it has not, reach out to me via email (preferred) or create an issue. I'm always happy to help.
+Thank you for checking out this repository! I hope this readme has provided you with sufficient information to accomplish your goals. If it has not, reach out to me via email at ```nick.cooper@colorado.edu``` (preferred) or create an issue. I'm always happy to help.
