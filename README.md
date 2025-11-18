@@ -1,3 +1,6 @@
+# Overview
+This is the official code repository for the paper "Logit-Based Losses Limit the Effectiveness of Feature Knowledge Distillation".
+
 # Setup
 * Clone this repository somewhere.
 * Create a new virtual environment with `python3 -m venv {desired_venv_path}`.
