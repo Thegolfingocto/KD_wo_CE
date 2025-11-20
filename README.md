@@ -19,7 +19,7 @@ This is the official code repository for the NeurReps paper "Logit-Based Losses 
 ### Environment
 * This software was developed on Ubuntu 24.04 and is suitable for use on Linux-based operating systems **only**. I have absolutely no idea how well it will work on Windows/Mac, if at all. Some modifications will likely be necessary. 
 * The existence of a CUDA capable GPU is assumed.
-* Developed using python 3.12.
+* Developed in python 3.12 against CUDA 13.0 and nvidia driver 580.
 
 ### Code Behavior
 * By default, the IDataset interface class will look for a path to store dataset files in /Scripts/Datasets/DatasetsCfg.json. When you first run the main.py script, it will prompt you to specify a dataset storage location, and use `/home/{username}/Datasets/` as a fallback.
@@ -97,6 +97,5 @@ Please use the following citation if you find the paper and/or code useful for y
     author = {Nicholas Cooper and Lijun Chen and Sailesh Dwivedy and Danna Gurari},
     booktitle = {NeurIPS Workshop on Symmetry and Geometry in Neural Representations},
     year = {2025},
-
 }
 ```
