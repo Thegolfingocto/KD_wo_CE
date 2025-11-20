@@ -93,7 +93,7 @@ Thank you for checking out this repository! I hope this readme has provided you 
 Please use the following citation if you find the paper and/or code useful for your research:
 ```
 @inproceedings{KDwoCE,
-    title = {Logit-Based Losses Limit the Effectivenss of Feature Knowledge     Distillation},
+    title = {Logit-Based Losses Limit the Effectivenss of Feature Knowledge Distillation},
     author = {Nicholas Cooper and Lijun Chen and Sailesh Dwivedy and Danna Gurari},
     booktitle = {NeurIPS Workshop on Symmetry and Geometry in Neural Representations},
     year = {2025},
