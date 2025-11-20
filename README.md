@@ -1,5 +1,5 @@
 # Overview
-This is the official code repository for the paper "Logit-Based Losses Limit the Effectiveness of Feature Knowledge Distillation".
+This is the official code repository for the NeurReps paper "Logit-Based Losses Limit the Effectiveness of Feature Knowledge Distillation". arXiv link: https://arxiv.org/abs/2511.14981
 
 # Setup
 * Clone this repository somewhere.
@@ -88,3 +88,15 @@ By mixing and matching different config parameters, one can recreate many popula
 
 # Remarks
 Thank you for checking out this repository! I hope this readme has provided you with sufficient information to accomplish your goals. If it has not, reach out to me via email at ```nick.cooper@colorado.edu``` (preferred) or create an issue. I'm always happy to help.
+
+# Citation
+Please use the following citation if you find the paper and/or code useful for your research:
+```
+@inproceedings{KDwoCE,
+    title = {Logit-Based Losses Limit the Effectivenss of Feature Knowledge     Distillation},
+    author = {Nicholas Cooper and Lijun Chen and Sailesh Dwivedy and Danna Gurari},
+    booktitle = {NeurIPS Workshop on Symmetry and Geometry in Neural Representations},
+    year = {2025},
+
+}
+```
